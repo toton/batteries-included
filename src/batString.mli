@@ -42,6 +42,8 @@
 
 open String
 
+type printable = string
+
 val is_empty : string -> bool
 (** [is_empty s] returns [true] if [s] is the empty string, [false]
     otherwise.
@@ -418,7 +420,7 @@ val icompare: t -> t -> int
       Example: [String.icompare "FOO" "bar" = 1] i.e. "foo" > "bar"
 *)
 
-module IString : BatInterfaces.OrderedType with type t = t
+module IString : BatInterfaces.OrderedPrintable with type t = t
   (** uses icompare as ordering function 
       
       Example: [module Nameset = Set.Make(String.IString)]
@@ -435,7 +437,7 @@ val numeric_compare: t -> t -> int
       Example: [String.numeric_compare "xx32" "xx210" = -1]
   *)
 
-module NumString : BatInterfaces.OrderedType with type t = t
+module NumString : BatInterfaces.OrderedPrintable with type t = t
 (** uses numeric_compare as its ordering function
 
     Example: [module FilenameSet = Set.Make(String.NumString)]

@@ -46,6 +46,8 @@ type t =
 					 tree, used for rebalancing. *)
   | Leaf of int * UTF8.t              (**[Leaf l t] is string [t] with length [l],
 					 measured in number of Unicode characters.*)
+
+type printable = t
  
 type forest_element = { mutable c : t; mutable len : int }
  
@@ -917,6 +919,8 @@ module IRope =
 struct
   type t = t_alias
   let compare = icompare
+  type printable = t
+  let print = print
 end
 
 

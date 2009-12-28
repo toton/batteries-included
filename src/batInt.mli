@@ -40,6 +40,8 @@
     type t = int
 	(** An alias for the type of integers. *)
 
+    type printable = t
+
     val zero : int
       (** The integer [0]. *)
       

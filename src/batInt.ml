@@ -101,7 +101,7 @@ end
 include BaseInt
 module N = BatNumber.MakeNumeric(BaseInt)
 let operations = N.operations
-
+type printable = t
 
 module BaseSafeInt = struct
   include BaseInt

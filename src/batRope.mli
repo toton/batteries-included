@@ -80,6 +80,8 @@ open CamomileLibrary
 type t
   (** The type of the ropes. *)
  
+type printable = t
+
 exception Out_of_bounds
   (** Raised when an operation violates the bounds of the rope. *)
   
@@ -530,7 +532,7 @@ val compare : t -> t -> int
 val icompare: t -> t -> int
 (** Compare two ropes, case-insensitive. *)
 
-module IRope : BatInterfaces.OrderedType with type t = t
+module IRope : BatInterfaces.OrderedPrintable with type t = t
 
 (** {6 Boilerplate code}*)
 

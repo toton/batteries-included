@@ -27,6 +27,8 @@ let int_max (x:int) (y:int) = if x < y then y else x
 
 open String
 
+type printable = string
+
 let compare = String.compare
 
 let init len f =
@@ -387,6 +389,16 @@ let splice s1 off len s2 =
 
 let is_empty s = length s = 0 
 
+let print         = BatInnerIO.nwrite
+let println out s = BatInnerIO.nwrite out s; BatInnerIO.write out '\n'
+let print_quoted out s = BatPrintf.fprintf out "%S" s
+let t_printer paren out x =
+  BatInnerIO.write out '"';
+  print out (escaped x);
+  BatInnerIO.write out '"'
+
+let quote = BatPrintf.sprintf2 "%S"
+
 let icompare s1 s2 = compare (String.lowercase s1) (String.lowercase s2)
 
 type t_alias = t (* needed for IString  breaks type t = t *)
@@ -395,6 +407,8 @@ module IString =
 struct
   type t = t_alias
   let compare = icompare
+  type printable = t
+  let print = print
 end
 
 
@@ -430,18 +444,9 @@ module NumString =
 struct
   type t = t_alias
   let compare = numeric_compare
+  type printable = t
+  let print = print
 end
-
-
-let print         = BatInnerIO.nwrite
-let println out s = BatInnerIO.nwrite out s; BatInnerIO.write out '\n'
-let print_quoted out s = BatPrintf.fprintf out "%S" s
-let t_printer paren out x =
-  BatInnerIO.write out '"';
-  print out (escaped x);
-  BatInnerIO.write out '"'
-
-let quote = BatPrintf.sprintf2 "%S"
 
 module Exceptionless =
 struct

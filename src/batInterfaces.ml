@@ -28,3 +28,15 @@ sig
   type t
   val compare : t -> t -> int
 end
+
+module type Printable =
+sig
+  type printable
+  val print : 'a BatInnerIO.output -> printable -> unit
+end
+
+module type OrderedPrintable =
+  sig 
+    include OrderedType 
+    include Printable with type printable = t
+  end

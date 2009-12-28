@@ -48,3 +48,17 @@ sig
         Example: a suitable ordering function is the generic structural
         comparison function {!Pervasives.compare}. *)
 end
+
+module type Printable =
+sig
+  type printable (* the data structure we can print *)
+  val print : 'a BatInnerIO.output -> printable -> unit
+    (** a printing function for this data structure *)
+end
+
+
+module type OrderedPrintable =
+  sig 
+    include OrderedType 
+    include Printable with type printable = t
+  end
