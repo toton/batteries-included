@@ -43,6 +43,10 @@ module type S_root =
 	  such as [f ai = Some bi] (when [f] returns [None], the
 	  corresponding element of [m] is discarded). *)
 
+    val fold_left : ('a -> elt -> 'a) -> 'a -> t -> 'a
+      (** as {!Set.fold} but different order arguments, same order of
+	  application *)
+
     val enum: t -> elt BatEnum.t
       (** Return an enumeration of all elements of the given set.
 	  The returned enumeration is sorted in increasing order with respect
@@ -409,6 +413,11 @@ module Make(Ord:OrderedType) =
 	      e
       in Queue.add (impl_of_t t) queue;
 	BatEnum.from next*)
+
+    let rec fold_left f accu s =
+      match s with
+        Empty -> accu
+      | Node(l, v, r, _) -> fold_left f r (f (fold_left f l accu) v)
 
     open Printf
     (* s1 in s2 -> -1, s2 in s1 -> 1, neither a subset -> min_int, eq -> 0 *)

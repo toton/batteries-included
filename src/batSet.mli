@@ -66,6 +66,10 @@ module type S_root =
 	  such as [f ai = Some bi] (when [f] returns [None], the
 	  corresponding element of [m] is discarded). *)
 
+    val fold_left : ('a -> elt -> 'a) -> 'a -> t -> 'a
+      (** as {!Set.fold} but different order arguments, same order of
+	  application *)
+
     val enum: t -> elt BatEnum.t
       (** Return an enumeration of all elements of the given set.
 	  The returned enumeration is sorted in increasing order with respect
