@@ -273,7 +273,9 @@ If a name should be rejected for some other reason, user defined validator may r
 
 val default_validator : validator ref
 (**
-  Forward slash and code zero are considered invalid.
+  In case of the initially available validator: forward slash and code zero are considered invalid; also empty components are rejected.
+
+  For special needs, the [default_validator] can be set to another function. E.g. one that accepts empty path compontents.
 
 {e Windows:} Invalid characters are *?:\/<> and all with code <32. Exception: the function {!PathType.of_string} doesn't use validator against drive letter with colon.
 *)

@@ -20,7 +20,6 @@
 
 (* TODO
  - consider making Path.t abstract (to allow memoizing of to_string result and more),  probably nobody is using this anyway; can leave current version as BatPathGen1 as back compatibiliy cruft
- - what about path components of length 0?
  - test on Windows
  - decide about platform-dependent val compare : t -> t -> int (useless?)
  - adopt from legacy Filename: is_implicit, check_suffix, chop_suffix, chop_extension, quote
