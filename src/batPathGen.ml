@@ -747,16 +747,16 @@ module Make = functor (S : StringType) -> struct
   let s = to_string
   let p = of_string
 
-  let with_nonempty path fu =
+  let with_nonempty exc_message path fu =
     match path with
-     | [] -> raise (Invalid_argument "Path.parent")
-     | [rt] when isroot rt -> raise (Invalid_argument "Path.parent")
+     | [] -> raise (Invalid_argument exc_message)
+     | [rt] when isroot rt -> raise (Invalid_argument exc_message)
      | name :: parent -> (fu name parent)
 
-  let name path = with_nonempty path
-    (fun name _ -> name)
+  let name path = with_nonempty "Path.name" path
+    (fun name parent -> name)
 
-  let map_name fu path = with_nonempty path
+  let map_name fu path = with_nonempty "Path.map_name" path
     (fun name parent -> (apply_default_validator (fu name)) :: parent)
 
   let split_on_last_dot =
@@ -777,7 +777,7 @@ module Make = functor (S : StringType) -> struct
     let name = name path in
     snd (split_on_last_dot name)
 
-  let map_ext fu path = with_nonempty path
+  let map_ext fu path = with_nonempty "Path.map_ext" path
     (fun name parent ->
       let part1, part2 = split_on_last_dot name in
       match fu part2 with
@@ -788,7 +788,7 @@ module Make = functor (S : StringType) -> struct
        | None -> part1 :: parent
     )
 
-  let name_core path = with_nonempty path
+  let name_core path = with_nonempty "Path.name_core" path
     (fun name _ ->
       let name_core, _ = split_on_last_dot name in
       name_core
@@ -796,7 +796,7 @@ module Make = functor (S : StringType) -> struct
 
   type components = t * ustring * ustring option
 
-  let split path = with_nonempty path
+  let split path = with_nonempty "Path.split" path
     (fun name parent ->
       let name_core, ext = split_on_last_dot name in
       (parent, name_core, ext)
