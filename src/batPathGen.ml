@@ -19,17 +19,25 @@
  *)
 
 (* TODO
- - test PathGen.OfRope
+ - consider making Path.t abstract (to allow memoizing of to_string result and more),  probably nobody is using this anyway; can leave current version as BatPathGen1 as back compatibiliy cruft
  - what about path components of length 0?
  - test on Windows
  - decide about platform-dependent val compare : t -> t -> int (useless?)
  - adopt from legacy Filename: is_implicit, check_suffix, chop_suffix, chop_extension, quote
+ - drop or test PathGen.OfRope
 
 In related modules:
  - Windows: read directories and open files using Unicode functions
  - Directory.exists, Directory.make, etc.
 *)
 
+(* A note about StringType.lift:
+   [PathGen] implementation requires uses [lift] only to lift few characters. All of them have codes <128. Therefore [PathGen] can live with either latin1 or UTF-8 put into any primitive strings.
+   [PathGen.OfString] uses [Str], which is byte-oriented and happy with UTF-8.
+   However, if encoding of the argument of [lift] was left unspecified,
+   it would be unusable outside this module.
+   Sice primitive strings are UTF-8 encoded almost everywhere, we want to be UTF-8 friendly here.
+*)
 
 (* ----------------------- Copy of (most of) Path.mli
   How to avoid having the copy here?
@@ -50,22 +58,19 @@ module type StringType = sig
   (** Length - number of indexing units *)
 
   type tchar
+  (** Character type used by [t].*)
+
   val get : t -> int -> tchar
+  (** Usual get function. *)
+
   val lift_char : char -> tchar
+  (** Convert Latin-1 character to [tchar]. *)
 
   val lift : string -> t
-  (** Convert from UTF-8 encoded string of primitive [string] type.
-  *)
-  (*
-   [PathGen] implementation requires [lift] to understand few characters which all have codes <128.
-   Therefore [PathGen] can live with either latin1 or UTF-8 put into any primitive strings.
-   [PathGen.OfString] uses [Str], which is byte-oriented and happy with UTF-8.
-   However, if encoding of the argument of [lift] was left unspecified,
-   it would be unusable outside this module.
-   Sice primitive strings are UTF-8 encoded almost everywhere, we want to be UTF-8 friendly here.
-  *)
+  (** Convert from UTF-8 string of primitive [string] type. *)
 
   val to_string : t -> string
+  (** Convert to primitive string with UTF-8 content. *)
 
   val concat_with_separators : t -> t list -> t
   (** [concat_with_separators sep lst] catenates all {i n} elements of [lst] inserting {i (n-1)} copies of [sep] in between. *)
@@ -172,6 +177,7 @@ module Operators : sig
 
  {!PathType.default_validator} is applied to the argument. [name] must not contain path separator (causes Illegal_char exception).
 @raise Illegal_char (raised by validator on any bad character)
+@raise Empty_component (raised by validator when an empty component is encountered)
  *)
 
  val (//@) : t -> t -> t
@@ -191,6 +197,8 @@ val normalize_filepath : t -> t
 
   [normalize (\[".."\]/:"foo"/:"."/:"bar"/:"sub1"/:".."/:"sub2") = \[".."\]/:"foo"/:"bar"/:"sub1"/:".."/:"sub2"]
 
+  When a directory structure contains links, it can be not pefectly pure tree. Then meaing of the ".." symbol depends on the real nature of parent of what is denoted by the name that preceded the ".." symbol. This symbol cannot be resolved for a graph traversal case when dealing with abstract paths only.
+
 {e Windows:} If single dot is next to root, it is preserved.
 *)
 val normalize_in_graph : t -> t
@@ -201,6 +209,8 @@ val normalize_in_tree : t -> t
   Consumes single dots and applies double dots where possible, e.g.:
 
   [normalize (\[".."\]/:"foo"/:"."/:"bar"/:"sub1"/:".."/:"sub2") = \[".."\]/:"foo"/:"bar"/:"sub2"]
+
+  This normalization is useful when dealing with paths that describe locations in a tree and the ".." symbol always points to the only parent of what precedes this symbol.
 
 {e Windows:} If single dot is next to root, it is preserved.
 @raise Malformed_path when absolute path is given that contains double dots that would be applied to the root.
@@ -242,7 +252,7 @@ exception Not_parent
 
 val relative_to_parent : t -> t -> t
 (** [relative_to_parent parent sub] returns relative path [rel] such that
-[(normalize parent)/:rel = normalize sub]. It is checked if [parent] is really a parent of [sub].
+[(normalize parent)/:rel = normalize sub]. It is checked if [sub] is really a descendant of [parent].
 Both arguments must be absolute paths or both relative.
 
 This function normalizes [base] and [sub] before calculation of the relative path.
@@ -258,6 +268,9 @@ This function normalizes [base] and [sub] before calculation of the relative pat
 
 exception Illegal_char
 (** Raised by {!PathType.of_string}, {!PathType.append} and {!PathType.Operators.(/:)} when used validator finds illegal character. *)
+
+exception Empty_component
+(** Raised by {!PathType.append} and {!PathType.Operators.(/:)} name handlling functions when empty component is encoutered. Only the root element can be empty. *)
 
 type validator = ustring -> bool
 (**
@@ -321,6 +334,7 @@ Example: [map_name (fun nn -> nn ^ ".backup") (["foo"]/:"bar") = ["foo"]/:"bar.b
 
 {!PathType.default_validator} is applied to new name.
 @raise Illegal_char (raised by validator if any bad character is found)
+@raise Empty_component (raised by validator when the new name is empty)
 *)
 
 val ext : t -> ustring option
@@ -378,6 +392,7 @@ Note the difference between [replacement] and [ext_after]!
 
 @raise Illegal_char (raised by validator if any bad character is found)
 @raise Invalid_argument if empty path (relative [\[\]] or absolute [\[""\]]) is given
+@raise Empty_component (raised by validator when the resulting name is empty)
 *)
 
 val name_core : t -> ustring
@@ -412,6 +427,7 @@ val join : components -> t
 (** Create a path from given components.
 
 @raise Illegal_char (raised by validator on any bad character)
+@raise Empty_component (raised by validator when the resulting name is empty)
 
 @example "Creating paths for a series of numbered images."
 {[
@@ -478,6 +494,7 @@ module Make = functor (S : StringType) -> struct
 
   exception Not_parent
   exception Illegal_char
+  exception Empty_component
   exception Malformed_path
 
   let windows = match Sys.os_type with
@@ -564,16 +581,17 @@ module Make = functor (S : StringType) -> struct
   let validator_none_of forbidden =
     let lifted_forbidden = List.map S.lift_char forbidden in
     let ensure ch = if List.mem ch lifted_forbidden then raise Illegal_char else () in
-    (fun name -> S.iter ensure name; true)
-(*   (fun name -> full_match_none_of forbidden name)  *)
+    (fun name ->
+      (S.iter ensure name
+      ;if S.length name > 0 then true else raise Empty_component
+      )
+    )
 
   let validator_simple = validator_none_of ['/'; '\000']
 
   let validator_windows = validator_none_of
     ['/'; '\\'; '*'; '?'; '<'; '>'; ':'; '\000'; '\001'; (*...*) '\031']
     (*TODO: improve the validator *)
-
-(*    (fun name -> full_match_none_of forbidden name)  *)
 
   let default_validator = ref (if windows then validator_windows else validator_simple)
 

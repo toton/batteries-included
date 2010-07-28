@@ -169,6 +169,7 @@ module Operators : sig
 
  {!PathType.default_validator} is applied to the argument. [name] must not contain path separator (causes Illegal_char exception).
 @raise Illegal_char (raised by validator on any bad character)
+@raise Empty_component (raised by validator when an empty component is encountered)
  *)
 
  val (//@) : t -> t -> t
@@ -193,7 +194,7 @@ val normalize_filepath : t -> t
 {e Windows:} If single dot is next to root, it is preserved.
 *)
 val normalize_in_graph : t -> t
-(** Another name for [normalize_filepath]. *)
+(** Another name for {!normalize_filepath}. *)
 
 val normalize_in_tree : t -> t
 (**
@@ -208,7 +209,7 @@ val normalize_in_tree : t -> t
 *)
 
 val normalize : t -> t
-(** Deprecated name for [normalize_in_tree] *)
+(** Deprecated name for {!normalize_in_tree} *)
 
 val parent : t -> t
 (** Returns parent path, i.e. immediate ancestor: [parent (foo/:bar) = foo]
@@ -259,6 +260,9 @@ This function normalizes [base] and [sub] before calculation of the relative pat
 
 exception Illegal_char
 (** Raised by {!PathType.of_string}, {!PathType.append} and {!PathType.Operators.(/:)} when used validator finds illegal character. *)
+
+exception Empty_component
+(** Raised by {!PathType.append} and {!PathType.Operators.(/:)} name handlling functions when empty component is encoutered. Only the root element can be empty. *)
 
 type validator = ustring -> bool
 (**
@@ -322,6 +326,7 @@ Example: [map_name (fun nn -> nn ^ ".backup") (["foo"]/:"bar") = ["foo"]/:"bar.b
 
 {!PathType.default_validator} is applied to new name.
 @raise Illegal_char (raised by validator if any bad character is found)
+@raise Empty_component (raised by validator when the new name is empty)
 *)
 
 val ext : t -> ustring option
@@ -379,6 +384,7 @@ Note the difference between [replacement] and [ext_after]!
 
 @raise Illegal_char (raised by validator if any bad character is found)
 @raise Invalid_argument if empty path (relative [\[\]] or absolute [\[""\]]) is given
+@raise Empty_component (raised by validator when the resulting name is empty)
 *)
 
 val name_core : t -> ustring
@@ -413,6 +419,7 @@ val join : components -> t
 (** Create a path from given components.
 
 @raise Illegal_char (raised by validator on any bad character)
+@raise Empty_component (raised by validator when the resulting name is empty)
 
 @example "Creating paths for a series of numbered images."
 {[
