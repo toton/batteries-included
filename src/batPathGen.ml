@@ -247,7 +247,7 @@ Exceptionally it is possible to get an absolute path as a result if drive letter
 @raise Malformed_path if normalization fails (see {!PathType.normalize})
 *)
 
-exception Not_parent
+exception Not_parent of string
 
 val relative_to_parent : t -> t -> t
 (** [relative_to_parent parent sub] returns relative path [rel] such that
@@ -491,7 +491,7 @@ end
 
 module Make = functor (S : StringType) -> struct
 
-  exception Not_parent
+  exception Not_parent of string
   exception Illegal_char
   exception Empty_component
   exception Malformed_path
@@ -652,56 +652,6 @@ module Make = functor (S : StringType) -> struct
   let normalize_filepath path = normalize_gen ~assume:`Graph path
   let normalize path = normalize_gen ~assume:`Tree path (* should be removed *)
 
-  let parent path =
-    match path with
-     | [] -> raise (Invalid_argument "Path.parent")
-     | [rt] when isroot rt -> raise (Invalid_argument "Path.parent")
-     | _ :: par -> par
-
-  let belongs base sub =
-(*  Would normalization be useful here?
-    let base = normalize base in
-    let sub = normalize sub in
-*)
-    let rec fold rbase rsub =
-      match rbase, rsub with
-       | bname::brest, sname::srest when bname = sname -> fold brest srest
-       | _::brest, _ -> false
-       | [], _ -> true
-     in
-    let rbase = List.rev base in
-    let rsub = List.rev sub in
-    match rbase, rsub with
-     | hb::_, hs::_ when hb = hs -> fold rbase rsub
-     | hb::_, hs::_ -> false
-     | rt::_, _ when isroot rt -> raise (Invalid_argument "Path.belongs")
-     | _, rt::_ when isroot rt -> raise (Invalid_argument "Path.belongs")
-     | _, _ -> fold rbase rsub
-
-  let gen_relative_to parent_only base sub =
-    let base = normalize base in
-    let sub = normalize sub in
-    let rec fold rbase rsub =
-      match rbase, rsub with
-       | bname::brest, sname::srest when bname = sname -> fold brest srest
-       | _::brest, _ -> if parent_only then raise Not_parent
-                         else fold brest (!!".." :: rsub)
-       | [], _ -> rsub
-     in
-    let rbase = List.rev base in
-    let rsub = List.rev sub in
-    let rrel = match rbase, rsub with
-     | hb::_, hs::_ when hb = hs -> fold rbase rsub
-     | rt::_, _ when isroot rt -> raise (Invalid_argument "Path.relative_to_*")
-     | _, rt::_ when isroot rt -> raise (Invalid_argument "Path.relative_to_*")
-     | _, _ -> fold rbase rsub
-     in
-    List.rev rrel
-
-  let relative_to_any base sub = gen_relative_to false base sub
-
-  let relative_to_parent base sub = gen_relative_to true base sub
-
   let to_ustring path =
     let separator = if windows then !!"\\" else !!"/" in
     match List.rev path with
@@ -746,6 +696,59 @@ module Make = functor (S : StringType) -> struct
 
   let s = to_string
   let p = of_string
+
+  let parent path =
+    match path with
+     | [] -> raise (Invalid_argument "Path.parent")
+     | [rt] when isroot rt -> raise (Invalid_argument "Path.parent")
+     | _ :: par -> par
+
+  let belongs base sub =
+(*  Would normalization be useful here?
+    let base = normalize base in
+    let sub = normalize sub in
+*)
+    let rec fold rbase rsub =
+      match rbase, rsub with
+       | bname::brest, sname::srest when bname = sname -> fold brest srest
+       | _::brest, _ -> false
+       | [], _ -> true
+     in
+    let rbase = List.rev base in
+    let rsub = List.rev sub in
+    match rbase, rsub with
+     | hb::_, hs::_ when hb = hs -> fold rbase rsub
+     | hb::_, hs::_ -> false
+     | rt::_, _ when isroot rt -> raise (Invalid_argument "Path.belongs")
+     | _, rt::_ when isroot rt -> raise (Invalid_argument "Path.belongs")
+     | _, _ -> fold rbase rsub
+
+  let gen_relative_to parent_only base sub =
+    let base = normalize base in
+    let sub = normalize sub in
+    let rec fold rbase rsub =
+      match rbase, rsub with
+       | bname::brest, sname::srest when bname = sname -> fold brest srest
+       | _::brest, _ ->
+          if parent_only then
+            let msg = (to_string base)^" is not parent of "^(to_string sub) in
+            raise (Not_parent msg)
+          else fold brest (!!".." :: rsub)
+       | [], _ -> rsub
+     in
+    let rbase = List.rev base in
+    let rsub = List.rev sub in
+    let rrel = match rbase, rsub with
+     | hb::_, hs::_ when hb = hs -> fold rbase rsub
+     | rt::_, _ when isroot rt -> raise (Invalid_argument "Path.relative_to_*")
+     | _, rt::_ when isroot rt -> raise (Invalid_argument "Path.relative_to_*")
+     | _, _ -> fold rbase rsub
+     in
+    List.rev rrel
+
+  let relative_to_any base sub = gen_relative_to false base sub
+
+  let relative_to_parent base sub = gen_relative_to true base sub
 
   let with_nonempty exc_message path fu =
     match path with

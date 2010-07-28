@@ -240,7 +240,7 @@ Exceptionally it is possible to get an absolute path as a result if drive letter
 @raise Malformed_path if normalization fails (see {!PathType.normalize})
 *)
 
-exception Not_parent
+exception Not_parent of string
 
 val relative_to_parent : t -> t -> t
 (** [relative_to_parent parent sub] returns relative path [rel] such that
