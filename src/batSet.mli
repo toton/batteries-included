@@ -171,7 +171,7 @@ module type S =
     (** Return the smallest element of the given set
        (with respect to the [Ord.compare] ordering).
 
-	@raise Not_found if the set is empty. *)
+	@raise [Not_found] if the set is empty. *)
 
     val max_elt: t -> elt
     (** Same as {!Set.S.min_elt}, but returns the largest element of the

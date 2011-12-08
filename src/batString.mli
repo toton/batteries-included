@@ -215,7 +215,7 @@ val find : string -> string -> int
 
       {b Note} This implementation is optimized for short strings.
 
-      @raise Not_found if [x] is not a substring of [s].
+      @raise [Not_found] if [x] is not a substring of [s].
 
       Example: [String.find "foobarbaz" "bar" = 3]
 *)
@@ -235,7 +235,7 @@ val rfind : string -> string -> int
 
       {b Note} This implementation is optimized for short strings.
 
-      @raise Not_found if [x] is not a substring of [s].
+      @raise [Not_found] if [x] is not a substring of [s].
 
       Example: [String.rfind "foobarbaz" "ba" = 6]
 *)
@@ -395,7 +395,7 @@ val split : string -> string -> string * string
       occurrence of [sep], and returns the two parts before
       and after the occurence (excluded).
 
-      @raise Not_found if the separator is not found.
+      @raise [Not_found] if the separator is not found.
 
       Examples:
       [String.split "abcabcabc" "bc" = ("a","abcabc")]
@@ -407,7 +407,7 @@ val rsplit : string -> string -> string * string
     of [sep], and returns the two parts before and after the
     occurence (excluded).
 
-    @raise Not_found if the separator is not found.
+    @raise [Not_found] if the separator is not found.
 
     Example: [String.rsplit "abcabcabc" "bc" = ("abcabca","")]
 *)

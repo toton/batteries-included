@@ -130,7 +130,7 @@ val fold_right : ('a -> 'b -> 'b) -> 'a t -> 'b -> 'b
 val reduce : ('a -> 'a -> 'a) -> 'a t -> 'a
 (** [reduce f (cons e s)] is [fold_left f e s].
 
-    @raise Invalid_argument on empty sequences. *)
+    @raise [Invalid_argument] on empty sequences. *)
 
 val max : 'a t -> 'a
   (** [max s] returns the largest value in [s] as judged by
@@ -184,7 +184,7 @@ val find_map : ('a -> 'b option) -> 'a t -> 'b option
 val filter : ('a -> bool) -> 'a t -> 'a t
 (** [filter p s] returns the sequence of elements of [s] satisfying
     [p]. Lazy.
-    
+
     {b Note} filter is lazy in that it returns a lazy sequence, but
     each element in the result is eagerly searched in the input
     sequence. Therefore, the access to a given element in the result
@@ -193,7 +193,7 @@ val filter : ('a -> bool) -> 'a t -> 'a t
     [p] returns [false]).
 
     Other functions that may drop an unbound number of elements
-    ([filter_map], [take_while], etc.) have the same behavior. 
+    ([filter_map], [take_while], etc.) have the same behavior.
 *)
 
 val filter_map : ('a -> 'b option) -> 'a t -> 'b t
@@ -233,7 +233,7 @@ val split : ('a * 'b) t -> 'a t * 'b t
 val combine : 'a t -> 'b t -> ('a * 'b) t
   (** Transform a pair of sequences into a sequence of pairs. Lazy.
 
-      @raise Invalid_argument if given sequences of different length. *)
+      @raise [Invalid_argument] if given sequences of different length. *)
 
 (** {6 Printing} *)
 

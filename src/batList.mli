@@ -133,7 +133,7 @@
 	val reduce : ('a -> 'a -> 'a) -> 'a list -> 'a
 	  (** [List.reduce f h::t] is [fold_left f h t].
 
-	      @raise Empty_list on empty lists. *)
+	      @raise [Empty_list] on empty lists. *)
 
 	val max : 'a list -> 'a
 	  (** [max l] returns the largest value in [l] as judged by
@@ -154,26 +154,26 @@
 	val iter2 : ('a -> 'b -> unit) -> 'a list -> 'b list -> unit
 	  (** [List.iter2 f [a0; a1; ...; an] [b0; b1; ...; bn]] calls in turn
 	      [f a0 b0; f a1 b1; ...; f an bn].
-	      @raise Different_list_size if the two lists have
+	      @raise [Different_list_size] if the two lists have
 	      different lengths. *)
 
 	val map2 : ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
 	  (** [List.map2 f [a0; a1; ...; an] [b0; b1; ...; bn]] is
 	      [[f a0 b0; f a1 b1; ...; f an bn]].
-	      @raise Different_list_size if the two lists have
+	      @raise [Different_list_size] if the two lists have
 	      different lengths.  Tail-recursive. *)
 
 	val fold_left2 : ('a -> 'b -> 'c -> 'a) -> 'a -> 'b list -> 'c list -> 'a
 	  (** [List.fold_left2 f a [b0; b1; ...; bn] [c0; c1; ...; cn]] is
 	      [f (... (f (f a b0 c0) b1 c1) ...) bn cn].
-	      @raise Different_list_size if the two lists have
+	      @raise [Different_list_size] if the two lists have
 	      different lengths. *)
 
 	val fold_right2 : ('a -> 'b -> 'c -> 'c) -> 'a list -> 'b list -> 'c -> 'c
 	  (** [List.fold_right2 f [a0; a1; ...; an] [b0; b1; ...; bn] c] is
 	      [f a0 b0 (f a1 b1 (... (f an bn c) ...))].
 
-	      @raise Different_list_size if the two lists have
+	      @raise [Different_list_size] if the two lists have
 	      different lengths.  Tail-recursive. *)
 
 	  (**{6 List scanning}*)
@@ -181,13 +181,13 @@
 	val for_all2 : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
 	  (** Same as {!List.for_all}, but for a two-argument predicate.
 
-	      @raise Invalid_argument if the two lists have
+	      @raise [Invalid_argument] if the two lists have
 	      different lengths. *)
 
 	val exists2 : ('a -> 'b -> bool) -> 'a list -> 'b list -> bool
 	  (** Same as {!List.exists}, but for a two-argument predicate.
 
-	      @raise Invalid_argument if the two lists have
+	      @raise [Invalid_argument] if the two lists have
 	      different lengths. *)
 
 
@@ -370,7 +370,7 @@
 	  (** Transform a pair of lists into a list of pairs:
 	      [combine [a0; a1; ...; an] [b0; b1; ...; bn]] is
 	      [[(a0,b0); (a1,b1); ...; (an,bn)]].
-	      @raise Different_list_size if the two lists
+	      @raise [Different_list_size] if the two lists
 	      have different lengths.  Tail-recursive. *)
 
 	(** {6 Utilities}*)

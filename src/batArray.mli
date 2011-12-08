@@ -75,19 +75,19 @@ val reduce : ('a -> 'a -> 'a) -> 'a array -> 'a
     is useful for merging a group of things that have no
     reasonable default value to return if the group is empty.
 
-    @raise Invalid_argument on empty arrays. *)
+    @raise [Invalid_argument] on empty arrays. *)
 
 val max : 'a array -> 'a
 (** [max a] returns the largest value in [a] as judged by
     [Pervasives.compare]
 
-    @raise Invalid_argument on empty input *)
+    @raise [Invalid_argument] on empty input *)
 
 val min : 'a array -> 'a
 (** [min a] returns the smallest value in [a] as judged by
     [Pervasives.compare]
 
-    @raise Invalid_argument on empty input *)
+    @raise [Invalid_argument] on empty input *)
 
 (**{6 Operations on two arrays}*)
 
@@ -95,31 +95,31 @@ val iter2 : ('a -> 'b -> unit) -> 'a array -> 'b array -> unit
 (** [Array.iter2 f [|a0; a1; ...; an|] [|b0; b1; ...; bn|]]
     performs calls [f a0 b0; f a1 b1; ...; f an bn] in that order.
 
-    @raise Invalid_argument if the two arrays have different lengths. *)
+    @raise [Invalid_argument] if the two arrays have different lengths. *)
 
 val iter2i : (int -> 'a -> 'b -> unit) -> 'a array -> 'b array -> unit
 (** [Array.iter2i f [|a0; a1; ...; an|] [|b0; b1; ...; bn|]]
     performs calls [f 0 a0 b0; f 1 a1 b1; ...; f n an bn] in that
     order.
 
-    @raise Invalid_argument if the two arrays have different
+    @raise [Invalid_argument] if the two arrays have different
     lengths. *)
 
 val for_all2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
 (** As {!Array.for_all} but on two arrays.
 
-    @raise Invalid_argument if the two arrays have different lengths.*)
+    @raise [Invalid_argument] if the two arrays have different lengths.*)
 
 
 val exists2 : ('a -> 'b -> bool) -> 'a array -> 'b array -> bool
 (** As {!Array.exists} but on two arrays.
 
-    @raise Invalid_argument if the two arrays have different lengths. *)
+    @raise [Invalid_argument] if the two arrays have different lengths. *)
 
 val map2 : ('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
 (** As {!Array.map} but on two arrays.
 
-    @raise Invalid_argument if the two arrays have different lengths. *)
+    @raise [Invalid_argument] if the two arrays have different lengths. *)
 
 (**{6 Predicates}*)
 
@@ -137,7 +137,7 @@ val find : ('a -> bool) -> 'a array -> 'a
 (** [find p a] returns the first element of array [a] that
     satisfies the predicate [p].
 
-    @raise Not_found if there is no value that satisfies [p] in
+    @raise [Not_found] if there is no value that satisfies [p] in
     the array [a]. *)
 
 val mem : 'a -> 'a array -> bool
@@ -150,7 +150,7 @@ val memq : 'a -> 'a array -> bool
 val findi : ('a -> bool) -> 'a array -> int
 (** [findi p a] returns the index of the first element of array [a]
     that satisfies the predicate [p].
-    @raise Not_found if there is no value that satisfies [p] in the
+    @raise [Not_found] if there is no value that satisfies [p] in the
     array [a].  *)
 
 val filter : ('a -> bool) -> 'a array -> 'a array

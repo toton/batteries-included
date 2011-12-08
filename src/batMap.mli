@@ -100,7 +100,7 @@ sig
 	  search, [Not_found] is raised.
 
 	  @since 1.2.0
-	  @raise Not_found if [k] is unbound in [m] (or [f] raises [Not_found])
+	  @raise [Not_found] if [k] is unbound in [m] (or [f] raises [Not_found])
 *)
 
     val modify_def: 'a -> key -> ('a -> 'a) -> 'a t -> 'a t
@@ -529,7 +529,7 @@ val modify : 'a -> ('b -> 'b) -> ('a, 'b) t -> ('a, 'b) t
 	raised during the search,  [Not_found] is raised.
 
 	@since 1.2.0
-	@raise Not_found if [k] is unbound in [m] (or [f] raises [Not_found]) *)
+	@raise [Not_found] if [k] is unbound in [m] (or [f] raises [Not_found]) *)
 
 val modify_def: 'b -> 'a -> ('b -> 'b) -> ('a,'b) t -> ('a,'b) t
 (** [modify_def v0 k f m] replaces the previous binding for [k]

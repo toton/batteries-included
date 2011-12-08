@@ -105,7 +105,7 @@ module Opt :
       encountered while parsing the command line, the default value is
       returned.
 
-      @raise No_value if no default values has been given
+      @raise [No_value] if no default values has been given
       and the option value has not been set from the command line.
 
     *)
@@ -418,7 +418,7 @@ module OptParser :
         ?long_names: string list -> 'a Opt.t -> unit
     (** Add an option to the option parser.
 
-      @raise Option_conflict if the short name(s) or long name(s)
+      @raise [Option_conflict] if the short name(s) or long name(s)
       have alread been used for some other option.
 
       @param help Short help message describing the option (for the usage message).

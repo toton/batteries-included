@@ -168,7 +168,7 @@ module Operators : sig
      {- relative path otherwise}}
 
  {!PathType.default_validator} is applied to the argument. [name] must not contain path separator (causes Illegal_char exception).
-@raise Illegal_char (raised by validator on any bad character)
+@raise [Illegal_char] (raised by validator on any bad character)
  *)
 
  val (//@) : t -> t -> t
@@ -176,7 +176,7 @@ module Operators : sig
 
 {e Windows:} As a special exception it is possible to pass absolute path as [relpath], provided that [basepath] is simple absolute path (i.e. of the form [\[...; ""\]]) and [relpath] is not simple absolute path.
 
-@raise Invalid_argument if the second argument is an absolute path ({e Windows:} see above). *)
+@raise [Invalid_argument] if the second argument is an absolute path ({e Windows:} see above). *)
 
 end
 
@@ -215,7 +215,7 @@ val normalize_in_tree : t -> t
   This normalization is useful when dealing with paths that describe locations in a tree and the ".." symbol always points to the only parent of what precedes this symbol.
 
 {e Windows:} If single dot is next to root, it is preserved.
-@raise Malformed_path when absolute path is given that contains double dots that would be applied to the root.
+@raise [Malformed_path] when absolute path is given that contains double dots that would be applied to the root.
 *)
 
 val normalize : t -> t
@@ -223,7 +223,7 @@ val normalize : t -> t
 
 val parent : t -> t
 (** Returns parent path, i.e. immediate ancestor: [parent (foo/:bar) = foo]
-@raise Invalid_argument if empty path (relative [\[\]] or absolute [\[""\]]) is given
+@raise [Invalid_argument] if empty path (relative [\[\]] or absolute [\[""\]]) is given
 *)
 
 val belongs : t -> t -> bool
@@ -232,7 +232,7 @@ Both arguments must be absolute paths or both relative.
 
 If both arguments have a root portion with drive letter and these letters are different, [belongs base sub] returns false.
 
-@raise Invalid_argument if exactly one of given arguments is absolute path
+@raise [Invalid_argument] if exactly one of given arguments is absolute path
 *) (* Should this function normalize its arguments? *)
 
 val relative_to_any : t -> t -> t
@@ -246,8 +246,8 @@ This function normalizes [base] and [sub] before calculation of the relative pat
 Exceptionally it is possible to get an absolute path as a result if drive letter is in [sub] but not as a root element (e .g. [base = root/:"bar"] and [sub = root/:bar//@(\["C:"\]/:"foo"]).
 
 @see 'relative_to_parent' may be sometimes more suitable
-@raise Invalid_argument if exactly one of given arguments is an absolute path
-@raise Malformed_path if normalization fails (see {!PathType.normalize})
+@raise [Invalid_argument] if exactly one of given arguments is an absolute path
+@raise [Malformed_path] if normalization fails (see {!PathType.normalize})
 *)
 
 exception Not_parent
@@ -261,9 +261,9 @@ This function normalizes [base] and [sub] before calculation of the relative pat
 
 {e Windows:} Exceptionally it is possible to get an absolute path as a result if drive letter is in [sub] but not as a root element (e .g. [base = root/:"bar"] and [sub = root/:bar//@(\["C:"\]/:"foo")]).
 
-@raise Not_parent if [sub] is not descendant of [parent]
-@raise Invalid_argument if exactly one of given arguments is absolute path
-@raise Malformed_path if normalization fails (see {!PathType.normalize})
+@raise [Not_parent] if [sub] is not descendant of [parent]
+@raise [Invalid_argument] if exactly one of given arguments is absolute path
+@raise [Malformed_path] if normalization fails (see {!PathType.normalize})
 *)
 
 (** {6 Validation} *)
@@ -305,7 +305,7 @@ val of_string : ustring -> t
 (** Parse path in a given string. Any number of consecutive separators collapse ("a//b" becomes "a/b"). [Path.default_validator] is applied to each resulting name.
 
 {e Windows:} both slashes '\' and '/' are accepted as separators. Paths of the 'semi-relative' form "C:foo\bar" are not recognized. For example "C:" string is parsed as [\["C:"\]] which has different meaning (see {!to_string}).
-@raise Illegal_char when a character not allowed in paths is found.
+@raise [Illegal_char] when a character not allowed in paths is found.
 *)
 
 (** {7 Convenience aliases} *)
@@ -323,7 +323,7 @@ These funtions do not accept empty paths, i.e. [\[\]], [\[""\]] or [\["C:"\]].
 val name : t -> ustring
 (** Returns name of the object the pathname points to, i.e.
 [name (foo/:bar) = bar]
-@raise Invalid_argument if empty path (relative [\[\]] or absolute [\[""\]]) is given
+@raise [Invalid_argument] if empty path (relative [\[\]] or absolute [\[""\]]) is given
 *)
 
 val map_name : (ustring -> ustring) -> t -> t
@@ -332,7 +332,7 @@ val map_name : (ustring -> ustring) -> t -> t
 Example: [map_name (fun nn -> nn ^ ".backup") (["foo"]/:"bar") = ["foo"]/:"bar.backup"]
 
 {!PathType.default_validator} is applied to new name.
-@raise Illegal_char (raised by validator if any bad character is found)
+@raise [Illegal_char] (raised by validator if any bad character is found)
 *)
 
 val ext : t -> ustring option
@@ -361,7 +361,7 @@ let count_music_parts download_dir =
   List.length music_parts
 ]}
 
-@raise Invalid_argument if empty path (relative [\[\]] or absolute [\[""\]]) is given
+@raise [Invalid_argument] if empty path (relative [\[\]] or absolute [\[""\]]) is given
 *)
 
 val map_ext : (ustring option -> ustring option) -> t -> t
@@ -388,8 +388,8 @@ Note the difference between [replacement] and [ext_after]!
 
 {e Windows:} If [fu] returns [Some ""] (to make a name with trailing period) [map_ext] returns a path that shouldn't be passed to the operating system (it is invalid).
 
-@raise Illegal_char (raised by validator if any bad character is found)
-@raise Invalid_argument if empty path (relative [\[\]] or absolute [\[""\]]) is given
+@raise [Illegal_char] (raised by validator if any bad character is found)
+@raise [Invalid_argument] if empty path (relative [\[\]] or absolute [\[""\]]) is given
 *)
 
 val name_core : t -> ustring
@@ -403,7 +403,7 @@ let tab_label modified file =
   GMisc.label ~text ()
 ]}
 
-@raise Invalid_argument if empty path (relative [\[\]] or absolute [\[""\]]) is given
+@raise [Invalid_argument] if empty path (relative [\[\]] or absolute [\[""\]]) is given
 *)
 
 type components = t * ustring * ustring option
@@ -417,13 +417,13 @@ val split : t -> components
 Resulting [name_core] string can be empty. For example,
 [Path.split (Path.root/:"home"/:"user"/:".bashrc")] equals [(Path.root/:"home"/:"user", "", Some "bashrc")].
 
-@raise Invalid_argument if empty path (relative [\[\]] or absolute [\[""\]]) is given
+@raise [Invalid_argument] if empty path (relative [\[\]] or absolute [\[""\]]) is given
 *)
 
 val join : components -> t
 (** Create a path from given components.
 
-@raise Illegal_char (raised by validator on any bad character)
+@raise [Illegal_char] (raised by validator on any bad character)
 
 @example "Creating paths for a series of numbered images."
 {[
@@ -441,8 +441,8 @@ let get_animation_frames working_dir count =
 val map : (components -> components) -> t -> t
 (** Map a path through a function that operates on separate components.
 
-@raise Illegal_char (raised by validator on any bad character)
-@raise Invalid_argument if empty path (relative [\[\]] or absolute [\[""\]]) is given
+@raise [Illegal_char] (raised by validator on any bad character)
+@raise [Invalid_argument] if empty path (relative [\[\]] or absolute [\[""\]]) is given
 
 @example "Insert a string just before file extension."
 {[
@@ -475,7 +475,7 @@ Return drive letter of the given absolute path.
     (drive_letter path_from) = (drive_letter path_to)
 ]}
 
-@raise Invald_argument if relative path is given
+@raise [Invalid_argument] if relative path is given
 *)
 
 end
