@@ -29,49 +29,42 @@ type 'a t = 'a uref
 
 let rec find ur = match !ur with
   | Ptr p ->
-      let vr = find p in
+      let (vr, _, _) as found = find p in
       ur := Ptr vr ;
-      vr
-  | _ -> ur
+      found
+  | Ranked (x, rank) -> (ur, x, rank)
 
 let uref x = ref (Ranked (x, 0))
 
-let uget ur = match !(find ur) with
-  | Ranked (x, _) -> x
-  | _ -> assert false
+let uget ur =
+  let _, x, _ = find ur in
+  x
 
 let uset ur x =
-  let ur = find ur in
-  match !ur with
-    | Ranked (_, r) -> ur := Ranked (x, r)
-    | _ -> assert false
+  let ur, _, rank = find ur in
+  ur := Ranked (x, rank)
 
 let equal ur vr =
   find ur == find vr
 
 let unite ?(sel=(fun x y -> x)) ur vr =
-  let ur = find ur in
-  let vr = find vr in
+  let ur, x, xr = find ur in
+  let vr, y, yr = find vr in
   if ur == vr then () else
-    match !ur, !vr with
-      | Ranked (x, xr), Ranked (y, yr) ->
-          if xr = yr then begin
-            ur := Ranked (sel x y, xr + 1) ;
-            vr := Ptr ur
-          end else if xr < yr then begin
-            ur := Ranked (sel x y, xr) ;
-            vr := Ptr ur
-          end else begin
-            vr := Ranked (sel x y, yr) ;
-            ur := Ptr vr
-          end
-      | _ -> assert false
+    if xr = yr then begin
+      ur := Ranked (sel x y, xr + 1) ;
+      vr := Ptr ur
+    end else if xr < yr then begin
+      ur := Ranked (sel x y, xr) ;
+      vr := Ptr ur
+    end else begin
+      vr := Ranked (sel x y, yr) ;
+      ur := Ptr vr
+    end
 
-let print elepr out ur = match !(find ur) with
-  | Ranked (x, _) ->
-      BatInnerIO.nwrite out "uref " ;
-      elepr out x ;
-  | _ -> assert false
+let print elepr out ur =
+  BatInnerIO.nwrite out "uref " ;
+  elepr out (uget ur)
 
 let t_printer elepr paren out ur =
   if paren then BatInnerIO.nwrite out "(" ;
